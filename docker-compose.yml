@@ -1,21 +1,44 @@
-version: "3.3"
-
+version: '3.7'
 services:
-  db:
-    build: ./postgres/
+  postgres:
+    image: postgres:10.5
+    restart: always
+    environment: 
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
     ports:
-      - 5433:5432
+      - '5433:5432'
     volumes:
-      - ./postgres:/docker-entrypoint-initdb.d
+      - ./postgresql-data:/var/lib/postgresql/data
+      - ./database/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     networks:
-      - app-tier
+      - net
+
+  mongodb:
+    image: mongo
+    restart: always
+    ports:
+      - 5434:5435
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: username
+      MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_DB: mongo_db
+    networks:
+      - net
+
   app :
-    build: ./data_science_onboard/
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
-      - db      
+      - postgres
+      - mongodb
     networks:
-      - app-tier
+      - net
 
 networks:
-  app-tier:
-    driver: bridge
+  net:
