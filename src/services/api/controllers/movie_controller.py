@@ -37,29 +37,7 @@ app_service = container.app_service()
 
 default_error_message = "An unknown error has occurred."
 
-
-@app.route(f"/register", methods=["POST"])
-def register():
-    try:
-        code = 200
-        json_data = request.get_json()
-        logging.info(f"Data received: {json_data}")
-        vm = ViewModelMapper.to_view_model(json_data, MovieViewModel)
-        result = app_service.register(vm)
-
-        if not result:
-            raise Exception(default_error_message)
-        else:
-            response = asdict(SuccessResponseDto("The movie has been registered."))
-    except Exception as ex:
-        code = 500
-        response = asdict(ErrorResponseDto([str(ex)]))
-        ex_formatted = ExFormatter.format(ex)
-        logging.error(ex_formatted)
-    logging.info(f"Response: {response}")
-    return jsonify(response), code
-
-@app.route(f"/store", methods=["GET"])
+@app.route(f"/register", methods=["GET"])
 def store_movies():
     try:
         code = 200
@@ -76,53 +54,6 @@ def store_movies():
         logging.error(ex_formatted)
     logging.info(f"Response: {response}")
     return jsonify(response), code
-
-@app.route(f"/update", methods=["PUT"])
-def update():
-    try:
-        code = 200
-        json_data = request.get_json()
-        logging.info(f"Data received: {json_data}")
-        vm = ViewModelMapper.to_view_model(json_data, MovieViewModel)
-        result = app_service.update(vm)
-        
-        if not result:
-            raise Exception(default_error_message)
-        else:
-            response = asdict(
-                SuccessResponseDto(
-                    "The movie information has been sent to be updated."
-                )
-            )
-    except Exception as ex:
-        code = 500
-        response = asdict(ErrorResponseDto([str(ex)]))
-        ex_formatted = ExFormatter.format(ex)
-        logging.error(ex_formatted)
-    logging.info(f"Response: {response}")
-    return jsonify(response), code
-
-
-@app.route(f"/remove", methods=["DELETE"])
-def remove():
-    try:
-        code = 200
-        json_data = request.get_json()
-        logging.info(f"Data received: {json_data}")
-        result = app_service.remove(uuid.UUID(json_data["id"]))
-        if not result:
-            raise Exception(default_error_message)
-        else:
-            response = asdict(SuccessResponseDto("The movie has been deleted."))
-        logging.info(response)
-    except Exception as ex:
-        code = 500
-        response = asdict(ErrorResponseDto(str(ex)))
-        ex_formatted = ExFormatter.format(ex)
-        logging.error(ex_formatted)
-    logging.info(f"Response: {response}")
-    return jsonify(response), code
-
 
 @app.route(f"/get_all", methods=["GET"])
 def get_all():

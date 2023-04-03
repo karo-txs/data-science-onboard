@@ -1,12 +1,11 @@
-from infra.data.dynamodb.context.dynamodb_context import DynamoDBContext
+from infra.data.mongodb.context.mongodb_context import DynamoDBContext
 
-from domain.interfaces.movie_repository_interface import (
-    MovieRepositoryInterface,
+from src.domain.interfaces.repository_interface import (
+    RepositoryInterface,
 )
-from infra.data.dynamodb.mappings.model_to_domain_mapping import (
+from infra.data.mongodb.mappings.model_to_domain_mapping import (
     MovieModelToDomain as DomainMapper,
 )
-from boto3.dynamodb.conditions import Attr
 from domain.models.movie import Movie
 from dataclasses import dataclass
 from typing import Any, List
@@ -14,7 +13,7 @@ import uuid
 
 
 @dataclass(repr=False, eq=False)
-class MovieRepository(MovieRepositoryInterface):
+class MovieRepository(RepositoryInterface):
     context: DynamoDBContext
 
     def __post_init__(self):

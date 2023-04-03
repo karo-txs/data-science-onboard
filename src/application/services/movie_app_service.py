@@ -5,8 +5,8 @@ from application.auto_mapper.view_model_to_domain_mapping import (
 from application.auto_mapper.domain_to_view_model_mapping import (
     MovieDomainToViewModel as ViewModelMapper,
 )
-from domain.interfaces.movie_repository_interface import (
-    MovieRepositoryInterface,
+from src.domain.interfaces.repository_interface import (
+    RepositoryInterface,
 )
 from dataclasses import dataclass, field
 from domain.models.movie import Movie
@@ -19,13 +19,8 @@ import uuid
 
 @dataclass(repr=False, eq=False)
 class MovieAppService:
-    movie_repository: MovieRepositoryInterface = field(repr=False)
+    movie_repository: RepositoryInterface = field(repr=False)
     movie_controller: MovieDBController = field(default=MovieDBController())
-
-    def register(self, movie_vm: MovieViewModel) -> bool:
-        movie = DomainMapper.to_domain(movie_vm)
-        logging.info(movie)
-        return self.movie_repository.add(movie_vm)
 
     def store_movies(self) -> bool:
         results = self.movie_controller.search_all()
@@ -39,14 +34,6 @@ class MovieAppService:
                     break
 
         return response
-
-    def update(self, movie_vm: MovieViewModel) -> bool:
-        movie = DomainMapper.to_domain(movie_vm)
-        logging.info(movie)
-        return self.movie_repository.update(movie)
-
-    def remove(self, id: uuid.UUID) -> bool:
-        return self.movie_repository.remove(id)
 
     def get_all(self) -> List[MovieViewModel]:
         movies = self.movie_repository.get_all()
