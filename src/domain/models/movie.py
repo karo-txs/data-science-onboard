@@ -1,8 +1,8 @@
-from src.domain.models.person import Person
-from src.domain.core.entity import Entity
+from domain.models.person import Person
+from domain.core.entity import Entity
 from domain.models.rating import Rating
 from domain.models.genre import Genre
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 @dataclass
@@ -13,10 +13,10 @@ class Movie(Entity):
     description: str
     rating: Rating
     contentRating: str
-    genre: List[Genre]
     datePublished: str
-    keywords: List[str]
     duration: str
-    actor: List[Person]
-    director: List[Person]
-    creator: List[Person]
+    genre: List[Genre] = field(default=None)
+    keywords: List[str] = field(default=None)
+    actor: List[Person] = field(default=None)
+    director: List[Person] = field(default=None)
+    creator: List[Person] = field(default=None)

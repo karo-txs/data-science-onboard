@@ -1,6 +1,6 @@
-from src.application.view_models.genre_view_model import GenreViewModel
-from src.application.view_models.person_view_model import PersonViewModel
-from src.application.view_models.rating_view_model import RatingViewModel
+from application.view_models.genre_view_model import GenreViewModel
+from application.view_models.person_view_model import PersonViewModel
+from application.view_models.rating_view_model import RatingViewModel
 from dataclasses import dataclass, field
 from typing import List
 import uuid
@@ -8,7 +8,6 @@ import uuid
 
 @dataclass
 class MovieViewModel:
-    id: uuid.UUID = field(default=None)
     type: str
     name: str
     url: str
@@ -22,3 +21,4 @@ class MovieViewModel:
     actor: List[PersonViewModel]
     director: List[PersonViewModel]
     creator: List[PersonViewModel]
+    id: uuid.UUID = field(default=None)

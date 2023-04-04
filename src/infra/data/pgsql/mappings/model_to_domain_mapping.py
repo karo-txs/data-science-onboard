@@ -1,13 +1,9 @@
-from infra.data.pgsql.models.movie_model import MovieModel
 from domain.models.movie import Movie
 from typing import List
-from src.domain.models.genre import Genre
-from src.domain.models.person import Person
-from src.domain.models.rating import Rating
-from src.infra.data.pgsql.models.genre_model import GenreModel
-from src.infra.data.pgsql.models.keyword_model import KeywordModel
-from src.infra.data.pgsql.models.person_model import PersonModel
-from src.infra.data.pgsql.models.rating_model import RatingModel
+from domain.models.genre import Genre
+from domain.models.person import Person
+from domain.models.rating import Rating
+from infra.data.pgsql.models.models import *
 
 
 class MovieModelToDomain:

@@ -5,7 +5,7 @@ from application.auto_mapper.view_model_to_domain_mapping import (
 from application.auto_mapper.domain_to_view_model_mapping import (
     MovieDomainToViewModel as ViewModelMapper,
 )
-from src.domain.interfaces.repository_interface import (
+from domain.interfaces.repository_interface import (
     RepositoryInterface,
 )
 from dataclasses import dataclass, field
@@ -30,6 +30,7 @@ class MovieAppService:
         for movie in results:
             if movie:
                 response = self.movie_repository.add(movie)
+                print(f"Movie Registred: {len(results)}")
                 if response == False:
                     break
 

@@ -1,6 +1,6 @@
 from infra.data.mongodb.context.mongodb_context import DynamoDBContext
 
-from src.domain.interfaces.repository_interface import (
+from domain.interfaces.repository_interface import (
     RepositoryInterface,
 )
 from infra.data.mongodb.mappings.model_to_domain_mapping import (

@@ -1,10 +1,10 @@
 from application.view_models.movie_view_model import MovieViewModel
-from src.application.view_models.genre_view_model import GenreViewModel
-from src.application.view_models.person_view_model import PersonViewModel
-from src.application.view_models.rating_view_model import RatingViewModel
-from src.domain.models.genre import Genre
-from src.domain.models.person import Person
-from src.domain.models.rating import Rating
+from application.view_models.genre_view_model import GenreViewModel
+from application.view_models.person_view_model import PersonViewModel
+from application.view_models.rating_view_model import RatingViewModel
+from domain.models.genre import Genre
+from domain.models.person import Person
+from domain.models.rating import Rating
 from domain.models.movie import Movie
 from typing import List
 
@@ -17,7 +17,6 @@ class MovieDomainToViewModel:
             return MovieViewModel(
                 name=movie.name,
                 id=movie.id,
-                name=movie.name,
                 url=movie.url,
                 description=movie.description,
                 rating=RatingDomainToViewModel.to_view_model(movie.rating),

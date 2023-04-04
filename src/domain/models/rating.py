@@ -1,4 +1,4 @@
-from src.domain.core.entity import Entity
+from domain.core.entity import Entity
 from dataclasses import dataclass
 
 @dataclass

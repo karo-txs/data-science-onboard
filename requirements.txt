@@ -2,8 +2,6 @@
 dependency-injector
 mediatr
 requests
-pip==19.2.3
-coverage==4.5.4
 sqlalchemy
 psycopg2-binary
 black==21.7b0
@@ -11,4 +9,4 @@ PyMovieDb
 
 # Flask API
 peewee
-flask
+flask>=2.2.2

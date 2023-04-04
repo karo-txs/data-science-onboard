@@ -16,7 +16,7 @@ class MovieDBController:
     def dict_to_movie(self, response: dict) -> Movie:
         genres = []
         for genre in response["genre"]:
-            genres.append(Genre(name=genre["name"]))
+            genres.append(Genre(id=uuid.uuid4(), name=genre))
 
         keywords = []
         for keyword in response["keywords"].split(","):
@@ -24,15 +24,15 @@ class MovieDBController:
 
         actors = []
         for actor in response["actor"]:
-            actors.append(Person(name=actor["name"], url=actor["url"]))
+            actors.append(Person(id=uuid.uuid4(), name=actor["name"], url=actor["url"]))
         
         directors = []
         for director in response["director"]:
-            directors.append(Person(name=director["name"], url=director["url"]))
+            directors.append(Person(id=uuid.uuid4(), name=director["name"], url=director["url"]))
 
         creators = []
         for creator in response["creator"]:
-            creators.append(Person(name=creator["name"], url=creator["url"]))
+            creators.append(Person(id=uuid.uuid4(), name=creator["name"], url=creator["url"]))
 
         return Movie(
             id=uuid.uuid4(),
@@ -41,6 +41,7 @@ class MovieDBController:
             url=response["url"],
             description=response["description"],
             rating=Rating(
+                id=uuid.uuid4(),
                 ratingCount=response["rating"]["ratingCount"],
                 bestRating=response["rating"]["bestRating"],
                 worstRating=response["rating"]["worstRating"],
@@ -58,26 +59,31 @@ class MovieDBController:
 
 
     def get_by_name(self, name: str) -> Movie:
-        response = self.imdb.get_by_name(name)
+        response = json.loads(self.imdb.get_by_name(name))
         movie = self.dict_to_movie(response)
         return movie
     
     def get_by_id(self, id: str) -> Movie:
-        response = self.imdb.get_by_id(id)
-        movie = self.dict_to_movie(response)
-        return movie
-    
+        response = json.loads(self.imdb.get_by_id(id))
+        
+        if "status" not in response:
+            movie = self.dict_to_movie(response)
+            return movie
+        return None
     def search_all(self) -> List[Movie]:
-        terms = ("a", "b", "c", "d", "e", "f", "g", "h", "i", 
-                 "j", "k", "l", "m", "n", "o", "p", "q", "r", 
-                 "s", "t", "u", "v", "w", "x", "y", "z", "1", 
-                 "2", "3", "4", "5", "6", "7", "8", "9", "0")
+        terms = ("a", "b", "c", "d", "e", "f", "g", "h", "i", )
+                #  "j", "k", "l", "m", "n", "o", "p", "q", "r", 
+                #  "s", "t", "u", "v", "w", "x", "y", "z", "1", 
+                #  "2", "3", "4", "5", "6", "7", "8", "9", "0")
         movies = []
         
         for t in terms:
             responses = json.loads(self.imdb.search(t))
 
             for response in responses["results"]:
-                movies.append(self.get_by_id(response["id"]))
+                movie = self.get_by_id(response["id"])
+                if movie:
+                    movies.append(movie)
+                    print(f"Collected Movies: {len(movies)}")
         
         return movies

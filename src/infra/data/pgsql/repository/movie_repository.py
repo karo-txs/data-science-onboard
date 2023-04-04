@@ -1,18 +1,9 @@
-from infra.data.pgsql.mappings.model_to_domain_mapping import (
-    MovieModelToDomain,
-    RatingModelToDomain,
-    GenreModelToDomain,
-    PersonModelToDomain,
-    KeywordModelToDomain,
-)
-from src.domain.interfaces.repository_interface import (
+from infra.data.pgsql.mappings.model_to_domain_mapping import *
+from domain.interfaces.repository_interface import (
     RepositoryInterface,
 )
 from infra.data.pgsql.context.pgsql_context import PgsqlContext
-from domain.models.movie import Movie
-from src.domain.models.person import Person
-from src.domain.models.rating import Rating
-from src.domain.models.genre import Genre
+from infra.data.pgsql.models.models import *
 from dataclasses import dataclass
 from typing import List
 import uuid
@@ -26,12 +17,14 @@ class MovieRepository(RepositoryInterface):
         self.__db_set = self.context.movies
         self.rating_repository = RatingRepository(self.context)
         self.genre_repository = GenreRepository(self.context)
-        self.movie_to_genre = MovieToGenreRepository(self.context)
         self.keyword_repository = KeywordRepository(self.context)
-        self.movie_to_keyword = MovieToKeywordRepository(self.context)
+        self.person_repository = PersonRepository(self.context)
 
     def add(self, movie: Movie) -> bool:
-        self.rating_repository.add(movie.rating)
+
+        if self.exists_by_name(movie.name):
+            print("Movie already exists.")
+            return True
 
         response = self.__db_set.create(
             id=movie.id,
@@ -39,22 +32,32 @@ class MovieRepository(RepositoryInterface):
             type=movie.type,
             url=movie.url,
             description=movie.description,
-            rating=self.rating_repository.get_by_id(movie.rating.id),
             contentRating=movie.contentRating,
             datePublished=movie.datePublished,
             duration=movie.duration,
         )
-        movie = self.get_by_id(movie.id)
+        self.rating_repository.add_aux(movie, movie.rating)
 
         for genre in movie.genre:
-            self.genre_repository.add(genre)
-            self.movie_to_genre.add(movie, genre)
+            self.genre_repository.add_aux(movie, genre)
 
         for keyword in movie.keywords:
-            self.keyword_repository.add(keyword)
-            self.movie_to_keyword.add(movie, keyword)
+            self.keyword_repository.add_aux(movie, keyword)
+        
+        for actor in movie.actor:
+            self.person_repository.add_aux(movie, actor, person_type=0)
+        
+        for director in movie.director:
+            self.person_repository.add_aux(movie, director, person_type=1)
+        
+        for creator in movie.creator:
+            self.person_repository.add_aux(movie, creator, person_type=2)
 
         return response is not None
+
+    def exists_by_name(self, name: str) -> bool:
+        movie_model: MovieModel = self.__db_set.select().where(self.__db_set.name == name)
+        return movie_model
 
     def get_all(self) -> List[Movie]:
         movie_models = self.__db_set.select()
@@ -66,13 +69,13 @@ class MovieRepository(RepositoryInterface):
         return movies
 
     def get_by_id(self, id: uuid.UUID) -> Movie:
-        movie_model = self.__db_set.select().where(self.__db_set.id == id)
-        rating_model = RatingRepository.get_by_id(movie_model.rating.id)
-        genre_model = GenreRepository.get_by_movie_id(id)
-        keyword_model = KeywordRepository.get_by_movie_id(id)
-        actor_model = PersonRepository.get_actors_by_movie_id(id)
-        director_model = PersonRepository.get_director_by_movie_id(id)
-        creator_model = PersonRepository.get_creator_by_movie_id(id)
+        movie_model: MovieModel = self.__db_set.select().where(self.__db_set.id == id)
+        rating_model = self.rating_repository.get_by_movie_id(id)
+        genre_model = self.genre_repository.get_by_movie_id(id)
+        keyword_model = self.keyword_repository.get_by_movie_id(id)
+        actor_model = self.person_repository.get_by_movie_id(id, person_type=0)
+        director_model = self.person_repository.get_by_movie_id(id, person_type=1)
+        creator_model = self.person_repository.get_by_movie_id(id, person_type=2)
 
         if movie_model:
             return MovieModelToDomain.to_domain(
@@ -94,10 +97,22 @@ class GenreRepository(RepositoryInterface):
         self.__db_set = self.context.genres
         self.__db_set_aux = self.context.movie_to_genre
 
-    def add(self, genre: Genre) -> bool:
-        response = self.__db_set.create(
-            name=genre.name,
+    def add_aux(self, movie: Movie, genre: Genre) -> bool:
+        self.add(genre)
+
+        response = self.__db_set_aux.create(
+            id=uuid.uuid4(), movie_id=movie.id, genre_name=genre.name
         )
+        return response is not None
+
+    def add(self, genre: Genre) -> bool:
+        response = False
+        try:
+            response = self.__db_set.create(
+                name=genre.name,
+            )
+        except:
+            print("Genre already exists.")
         return response is not None
 
     def get_all(self) -> List[Genre]:
@@ -106,7 +121,7 @@ class GenreRepository(RepositoryInterface):
             return GenreModelToDomain.to_domain_list(genre_models)
         return None
 
-    def get_by_id(self, movie_id: uuid.UUID) -> Genre:
+    def get_by_id(self, id: uuid.UUID) -> Genre:
         genre_models = self.__db_set.select().where(self.__db_set.id == id)
         if genre_models:
             return GenreModelToDomain.to_domain_list(genre_models)
@@ -135,6 +150,15 @@ class RatingRepository(RepositoryInterface):
 
     def __post_init__(self):
         self.__db_set = self.context.ratings
+        self.__db_set_aux = self.context.movie_to_rating
+    
+    def add_aux(self, movie: Movie, rating: Rating) -> bool:
+        self.add(rating)
+
+        response = self.__db_set_aux.create(
+            id=uuid.uuid4(), movie_id=movie.id, rating_id=rating.id
+        )
+        return response is not None
 
     def add(self, rating: Rating) -> bool:
         response = self.__db_set.create(
@@ -153,8 +177,19 @@ class RatingRepository(RepositoryInterface):
         return None
 
     def get_by_id(self, id: uuid.UUID) -> Rating:
-        rating_model = self.__db_set.select().where(self.__db_set.id == id)
-        if rating_model:
+        rating_models = self.__db_set.select().where(
+            self.__db_set.id == id
+        )
+
+        if rating_models:
+            return RatingModelToDomain.to_domain(rating_models)
+        return None
+    
+    def get_by_movie_id(self, id: uuid.UUID) -> Rating:
+        rating_model_aux = self.__db_set_aux.select().where(self.__db_set_aux.movie_id == id)
+
+        if isinstance(rating_model_aux, MovieToRatingModel):
+            rating_model = self.__db_set.select().where(self.__db_set.id == rating_model_aux.rating_id)
             return RatingModelToDomain.to_domain(rating_model)
         return None
 
@@ -165,13 +200,23 @@ class PersonRepository(RepositoryInterface):
 
     def __post_init__(self):
         self.__db_set = self.context.persons
-        self.__db_set_actor = self.context.movie_to_actor
-        self.__db_set_director = self.context.movie_to_director
-        self.__db_set_creator = self.context.movie_to_creator
+        self.__db_aux = (self.context.movie_to_actor, 
+                         self.context.movie_to_director, 
+                         self.context.movie_to_creator)
+    
+    def add_aux(self, movie: Movie, person: Person, person_type: int) -> bool:
+        self.add(person)
+
+        response = self.__db_aux[person_type].create(
+            id=uuid.uuid4(),
+            person_id=person.id,
+            movie_id=movie.id,
+        )
+        return response is not None
 
     def add(self, person: Person) -> bool:
         response = self.__db_set.create(
-            id=uuid.uuid4(),
+            id=person.id,
             name=person.name,
             url=person.url,
         )
@@ -189,51 +234,20 @@ class PersonRepository(RepositoryInterface):
             return PersonModelToDomain.to_domain(person_model)
         return None
 
-    def get_actors_by_movie_id(self, movie_id: uuid.UUID) -> List[Person]:
-        person_models_aux = self.__db_set_actor.select().where(
-            self.__db_set_actor.movie_id == movie_id
+    def get_by_movie_id(self, movie_id: uuid.UUID, person_type: int) -> List[Person]:
+        person_models_aux = self.__db_aux[person_type].select().where(
+            self.__db_aux[person_type].movie_id == movie_id
         )
 
         person_models = []
-        for genre_model in person_models_aux:
+        for person_model in person_models_aux:
             person_models.append(
-                self.__db_set.select().where(self.__db_set.id == genre_model.genre_name)
+                self.__db_set.select().where(self.__db_set.id == person_model.id)
             )
 
         if person_models:
             return PersonModelToDomain.to_domain_list(person_models)
         return []
-
-    def get_director_by_movie_id(self, movie_id: uuid.UUID) -> List[Person]:
-        person_models_aux = self.__db_set_director.select().where(
-            self.__db_set_director.movie_id == movie_id
-        )
-
-        person_models = []
-        for genre_model in person_models_aux:
-            person_models.append(
-                self.__db_set.select().where(self.__db_set.id == genre_model.genre_name)
-            )
-
-        if person_models:
-            return PersonModelToDomain.to_domain_list(person_models)
-        return []
-
-    def get_creator_by_movie_id(self, movie_id: uuid.UUID) -> List[Person]:
-        person_models_aux = self.__db_set_creator.select().where(
-            self.__db_set_creator.movie_id == movie_id
-        )
-
-        person_models = []
-        for genre_model in person_models_aux:
-            person_models.append(
-                self.__db_set.select().where(self.__db_set.id == genre_model.genre_name)
-            )
-
-        if person_models:
-            return PersonModelToDomain.to_domain_list(person_models)
-        return []
-
 
 @dataclass(repr=False, eq=False)
 class KeywordRepository(RepositoryInterface):
@@ -242,11 +256,23 @@ class KeywordRepository(RepositoryInterface):
     def __post_init__(self):
         self.__db_set = self.context.keywords
         self.__db_set_aux = self.context.movie_to_keyword
+    
+    def add_aux(self, movie: Movie, keyword: str) -> bool:
+        self.add(keyword)
+
+        response = self.__db_set_aux.create(
+            id=uuid.uuid4(), movie_id=movie.id, keyword=keyword
+        )
+        return response is not None
 
     def add(self, keyword: str) -> bool:
-        response = self.__db_set.create(
-            value=keyword,
-        )
+        response = False
+        try:
+            response = self.__db_set.create(
+                value=keyword,
+            )
+        except:
+            print("Keyword already exists.")
         return response is not None
 
     def get_all(self) -> List[str]:
@@ -272,49 +298,3 @@ class KeywordRepository(RepositoryInterface):
             return KeywordModelToDomain.to_domain_list(keyword_models)
 
         return []
-
-
-@dataclass(repr=False, eq=False)
-class MovieToGenreRepository(RepositoryInterface):
-    context: PgsqlContext
-
-    def __post_init__(self):
-        self.__db_set = self.context.movie_to_genre
-
-    def add(self, obj: any) -> bool:
-        pass
-
-    def add(self, movie: Movie, genre: Genre) -> bool:
-        response = self.__db_set.create(
-            id=uuid.uuid4(), movie_id=movie.id, genre_name=genre.name
-        )
-        return response is not None
-
-    def get_all(self) -> List[Genre]:
-        return None
-
-    def get_by_id(self, id: uuid.UUID) -> Genre:
-        return None
-
-
-@dataclass(repr=False, eq=False)
-class MovieToKeywordRepository(RepositoryInterface):
-    context: PgsqlContext
-
-    def __post_init__(self):
-        self.__db_set = self.context.movie_to_keyword
-
-    def add(self, obj: any) -> bool:
-        pass
-
-    def add(self, movie: Movie, keyword: str) -> bool:
-        response = self.__db_set.create(
-            id=uuid.uuid4(), movie_id=movie.id, keyword=keyword
-        )
-        return response is not None
-
-    def get_all(self) -> List[Genre]:
-        return None
-
-    def get_by_id(self, id: uuid.UUID) -> Genre:
-        return None

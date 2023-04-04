@@ -1,6 +1,6 @@
 import sys
 
-sys.path.append("../../../../src")
+sys.path.append("./src")
 
 from infra.cross_cutting.ioc.flask_dependency_injector_boot_strapper import (
     FlaskDependencyInjectorBootStrapper as container,

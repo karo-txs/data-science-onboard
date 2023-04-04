@@ -3,6 +3,6 @@ import uuid
 
 @dataclass
 class PersonViewModel:
-    id: uuid.UUID = field(default=None)
     name: str
     url: str
+    id: uuid.UUID = field(default=None)
