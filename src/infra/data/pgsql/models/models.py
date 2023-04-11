@@ -56,7 +56,7 @@ class MovieToActorModel(BaseModel):
 
 class MovieToKeywordModel(BaseModel):
     id = UUIDField(primary_key=True, unique=True)
-    movie = ForeignKeyField(MovieModel, field="id")
+    movie_id = ForeignKeyField(MovieModel, field="id")
     keyword = ForeignKeyField(KeywordModel, field="value")
 
     class Meta:

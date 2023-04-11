@@ -9,12 +9,13 @@ from domain.interfaces.repository_interface import (
     RepositoryInterface,
 )
 from dataclasses import dataclass, field
-from domain.models.movie import Movie
 from infra.movie_db.movie_db_controller import MovieDBController
+from infra.data.pandasdb.db_to_dataframe import DBToDataframe
+from infra.plot.plotter import Plotter
 from typing import List
 import logging
-import json
 import uuid
+
 
 
 @dataclass(repr=False, eq=False)
@@ -38,7 +39,16 @@ class MovieAppService:
 
     def graphs_generate(self) -> bool:
         movies = self.movie_repository.get_all()
-        print(len(movies))
+        df = DBToDataframe.convert(movies)
+        df.to_csv("results/test.cvs")
+
+        plotter = Plotter(df)
+        plotter.hist("ratingCount")
+        plotter.hist("bestRating")
+        plotter.hist("worstRating")
+        plotter.hist("ratingValue")
+
+        return True
 
     def get_all(self) -> List[MovieViewModel]:
         movies = self.movie_repository.get_all()

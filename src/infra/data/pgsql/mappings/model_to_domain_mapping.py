@@ -49,11 +49,11 @@ class RatingModelToDomain:
     def to_domain(rating_model: RatingModel) -> Rating:
         if rating_model:
             return Rating(
-                id=rating_model[0].id,
-                ratingCount=rating_model[0].ratingCount,
-                bestRating=rating_model[0].bestRating,
-                worstRating=rating_model[0].worstRating,
-                ratingValue=rating_model[0].ratingValue,
+                id=rating_model.id,
+                ratingCount=rating_model.ratingCount,
+                bestRating=rating_model.bestRating,
+                worstRating=rating_model.worstRating,
+                ratingValue=rating_model.ratingValue,
             )
         return None
 
@@ -70,7 +70,7 @@ class GenreModelToDomain:
     def to_domain(genre_model: GenreModel) -> Genre:
         if genre_model:
             return Genre(
-                name=genre_model[0].name,
+                name=genre_model.name,
             )
         return None
 
@@ -88,9 +88,9 @@ class PersonModelToDomain:
     def to_domain(person_model: PersonModel) -> Person:
         if person_model:
             return Person(
-                id=person_model[0].id,
-                name=person_model[0].name,
-                url=person_model[0].url,
+                id=person_model.id,
+                name=person_model.name,
+                url=person_model.url,
             )
         return None
 
@@ -106,12 +106,12 @@ class KeywordModelToDomain:
     @staticmethod
     def to_domain(keyword_model: KeywordModel) -> str:
         if keyword_model:
-            return (keyword_model[0].value,)
+            return keyword_model.value
         return None
 
     @staticmethod
     def to_domain_list(keywords_models: List[KeywordModel]) -> List[str]:
         keywords = list()
         for keyword in keywords_models:
-            keywords.append(KeywordModelToDomain.to_domain(keyword))
+            keywords.append(keyword.value)
         return keywords

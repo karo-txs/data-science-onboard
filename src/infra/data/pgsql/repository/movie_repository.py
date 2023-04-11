@@ -57,14 +57,14 @@ class MovieRepository(RepositoryInterface):
 
     def exists_by_name(self, name: str) -> bool:
         movie_model: MovieModel = self.__db_set.select().where(self.__db_set.name == name)
-        return movie_model
+        return True if movie_model else False
 
     def get_all(self) -> List[Movie]:
-        movie_models = self.__db_set.select()
+        movie_models: List[MovieModel] = self.__db_set.select()
 
         movies = []
         for movie in movie_models:
-            self.get_by_id(movie.id)
+            movies.append(self.get_by_id(movie.id))
 
         return movies
 
@@ -131,16 +131,14 @@ class GenreRepository(RepositoryInterface):
         genre_models_aux = self.__db_set_aux.select().where(
             self.__db_set_aux.movie_id == movie_id
         )
+
         genre_models = []
         for genre_model in genre_models_aux:
-            genre_models.append(
-                self.__db_set.select().where(
-                    self.__db_set.name == genre_model.genre_name
-                )
-            )
-
+            genre = self.__db_set.select().where(self.__db_set.name == genre_model.genre_name)[0]
+            genre_models.append(genre)
         if genre_models:
-            return GenreModelToDomain.to_domain_list(genre_models)
+            return genre_models
+       
         return []
 
 
@@ -188,9 +186,9 @@ class RatingRepository(RepositoryInterface):
     def get_by_movie_id(self, id: uuid.UUID) -> Rating:
         rating_model_aux = self.__db_set_aux.select().where(self.__db_set_aux.movie_id == id)
 
-        if isinstance(rating_model_aux, MovieToRatingModel):
-            rating_model = self.__db_set.select().where(self.__db_set.id == rating_model_aux.rating_id)
-            return RatingModelToDomain.to_domain(rating_model)
+        if rating_model_aux:
+            rating_model = self.__db_set.select().where(self.__db_set.id == rating_model_aux[0].rating_id)
+            return RatingModelToDomain.to_domain(rating_model[0])
         return None
 
 
@@ -241,9 +239,8 @@ class PersonRepository(RepositoryInterface):
 
         person_models = []
         for person_model in person_models_aux:
-            person_models.append(
-                self.__db_set.select().where(self.__db_set.id == person_model.id)
-            )
+            person = self.__db_set.select().where(self.__db_set.id == person_model.person_id)
+            person_models.append(person[0])
 
         if person_models:
             return PersonModelToDomain.to_domain_list(person_models)
@@ -290,12 +287,10 @@ class KeywordRepository(RepositoryInterface):
         )
         keyword_models = []
         for keyword_model in keyword_models_aux:
-            if isinstance(keyword_model, KeywordModel):
-                keyword_models.append(
-                    self.__db_set.select().where(self.__db_set.value == keyword_model.value)
-                )
+            keyword = self.__db_set.select().where(self.__db_set.value == keyword_model.keyword)[0]
+            keyword_models.append(keyword)
 
         if keyword_models:
-            return KeywordModelToDomain.to_domain_list(keyword_models)
+            return keyword_models
 
         return []

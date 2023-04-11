@@ -22,17 +22,21 @@ class Movie(Entity):
     creator: List[Person] = field(default=None)
 
     def to_dict(self) -> dict:
+        
         return {
             "type": self.type,
             "name": self.name,
             "url": self.url,
             "description": self.description,
-            "rating": self.rating.to_dict(),
+            "ratingCount": self.rating.ratingCount if self.rating.ratingCount else None,
+            "bestRating": self.rating.bestRating if self.rating.bestRating else None,
+            "worstRating": self.rating.worstRating if self.rating.worstRating else None,
+            "ratingValue": self.rating.ratingValue if self.rating.ratingValue else None,
             "contentRating": self.contentRating,
             "datePublished": self.datePublished,
-            "genre": [g.to_dict() for g in self.genre],
+            "genre": [g.name for g in self.genre],
             "keywords": self.keywords,
-            "actor": [a.to_dict() for a in self.actor],
-            "director": [d.to_dict() for d in self.director],
-            "creator": [c.to_dict() for c in self.creator],
+            "actor": [a.name for a in self.actor],
+            "director": [d.name for d in self.director],
+            "creator": [c.name for c in self.creator],
         }

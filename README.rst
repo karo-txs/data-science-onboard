@@ -23,15 +23,4 @@ Building a full data-science project end-to-end.
 * Documentation: https://data-science-onboard.readthedocs.io.
 
 
-Features
---------
-
-* TODO
-
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+export FLASK_APP=/src/services/api/controllers/movie_controller.py
