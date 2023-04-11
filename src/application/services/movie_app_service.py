@@ -36,6 +36,10 @@ class MovieAppService:
 
         return response
 
+    def graphs_generate(self) -> bool:
+        movies = self.movie_repository.get_all()
+        print(len(movies))
+
     def get_all(self) -> List[MovieViewModel]:
         movies = self.movie_repository.get_all()
         movie_vms = ViewModelMapper.to_view_models(movies)

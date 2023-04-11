@@ -52,7 +52,6 @@ class GenreDomainToViewModel:
     def to_view_model(genre: Genre) -> GenreViewModel:
         if genre:
             return GenreViewModel(
-                id=genre.id,
                 name=genre.name
             )
     

@@ -78,7 +78,8 @@ class GenreModelToDomain:
     def to_domain_list(genre_models: List[GenreModel]) -> List[Genre]:
         genres = list()
         for genre in genre_models:
-            genres.append(GenreModelToDomain.to_domain(genre))
+            if isinstance(genre, GenreModel):
+                genres.append(GenreModelToDomain.to_domain(genre))
         return genres
 
 

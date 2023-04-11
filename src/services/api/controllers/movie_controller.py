@@ -55,6 +55,24 @@ def store_movies():
     logging.info(f"Response: {response}")
     return jsonify(response), code
 
+@app.route(f"/graphs", methods=["GET"])
+def graphs_generation():
+    try:
+        code = 200
+        result = app_service.graphs_generate()
+
+        if not result:
+            raise Exception(default_error_message)
+        else:
+            response = asdict(SuccessResponseDto("New graphs were stored"))
+    except Exception as ex:
+        code = 500
+        response = asdict(ErrorResponseDto([str(ex)]))
+        ex_formatted = ExFormatter.format(ex)
+        logging.error(ex_formatted)
+    logging.info(f"Response: {response}")
+    return jsonify(response), code
+
 @app.route(f"/get_all", methods=["GET"])
 def get_all():
     try:

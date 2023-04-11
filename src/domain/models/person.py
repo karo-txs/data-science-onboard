@@ -5,3 +5,9 @@ from dataclasses import dataclass
 class Person(Entity):
     name: str
     url: str
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "url": self.url,
+        }

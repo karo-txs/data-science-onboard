@@ -7,3 +7,12 @@ class Rating(Entity):
     bestRating: float
     worstRating: float
     ratingValue: float
+
+    def to_dict(self) -> dict:
+        return {
+            "ratingCount": self.ratingCount,
+            "bestRating": self.bestRating,
+            "worstRating": self.worstRating,
+            "ratingValue": self.ratingValue,
+        }
+

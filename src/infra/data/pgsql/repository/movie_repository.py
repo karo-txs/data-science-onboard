@@ -290,9 +290,10 @@ class KeywordRepository(RepositoryInterface):
         )
         keyword_models = []
         for keyword_model in keyword_models_aux:
-            keyword_models.append(
-                self.__db_set.select().where(self.__db_set.value == keyword_model.value)
-            )
+            if isinstance(keyword_model, KeywordModel):
+                keyword_models.append(
+                    self.__db_set.select().where(self.__db_set.value == keyword_model.value)
+                )
 
         if keyword_models:
             return KeywordModelToDomain.to_domain_list(keyword_models)
