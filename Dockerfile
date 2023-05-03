@@ -15,5 +15,7 @@ RUN apt-get update -y && \
     source /data-science-onboard/venv/bin/activate && pip install -r requirements.txt
 
 COPY ./src /data-science-onboard/src
-
-RUN pip install -r requirements.txt
+RUN cd /data-science-onboard/src && \
+    pip install -r requirements.txt && \
+    export FLASK_APP=services/api/controllers/movie_controller.py && \
+    flask --app services/api/controllers/movie_controller.py run

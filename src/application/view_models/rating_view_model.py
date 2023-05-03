@@ -4,8 +4,8 @@ import uuid
 
 @dataclass
 class RatingViewModel:
-    ratingCount: int
-    bestRating: float
-    worstRating: float
-    ratingValue: float
+    rating: str
+    votes: int
+    metascore: float
+    imdb_ratings: float
     id: uuid.UUID = field(default=None)

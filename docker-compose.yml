@@ -17,25 +17,12 @@ services:
     networks:
       - net
 
-  mongodb:
-    image: mongo
-    restart: always
-    ports:
-      - 5434:5435
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: username
-      MONGO_INITDB_ROOT_PASSWORD: secret
-      MONGO_DB: mongo_db
-    networks:
-      - net
-
   app :
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
       - postgres
-      - mongodb
     networks:
       - net
 

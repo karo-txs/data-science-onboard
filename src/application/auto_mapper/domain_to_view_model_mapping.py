@@ -17,17 +17,13 @@ class MovieDomainToViewModel:
             return MovieViewModel(
                 name=movie.name,
                 id=movie.id,
-                url=movie.url,
                 description=movie.description,
                 rating=RatingDomainToViewModel.to_view_model(movie.rating),
-                contentRating=movie.contentRating,
-                genr=GenreDomainToViewModel.to_view_models(movie.genre),
-                datePublished=movie.datePublished,
-                keywords=movie.keywords,
+                genre=GenreDomainToViewModel.to_view_models(movie.genre),
+                year=movie.year,
                 duration=movie.duration,
                 actor=PersonDomainToViewModel.to_view_models(movie.actor),
                 director=PersonDomainToViewModel.to_view_models(movie.director),
-                creator=PersonDomainToViewModel.to_view_models(movie.creator),
             )
 
     @staticmethod
@@ -44,6 +40,11 @@ class RatingDomainToViewModel:
     def to_view_model(rating: Rating) -> RatingViewModel:
         if rating:
             return RatingViewModel(
+                id=rating.id,
+                rating=rating.rating,
+                votes=rating.votes,
+                metascore=rating.metascore,
+                imdb_ratings=rating.imdb_ratings
             )
 
 class GenreDomainToViewModel:
@@ -71,7 +72,6 @@ class PersonDomainToViewModel:
             return PersonViewModel(
                 id=person.id,
                 name=person.name,
-                url=person.url
             )
     
     @staticmethod

@@ -7,11 +7,9 @@ class MovieModel(BaseModel):
     id = UUIDField(primary_key=True, unique=True)
     name = TextField()
     type = TextField(null=True)
-    url = TextField(null=True)
     description = TextField(null=True)
-    contentRating = TextField(null=True)
-    datePublished = TextField(null=True)
-    duration = TextField(null=True)
+    year = IntegerField(null=True)
+    duration = IntegerField(null=True)
 
     class Meta:
         table_name = "movies"
@@ -19,26 +17,19 @@ class MovieModel(BaseModel):
 class PersonModel(BaseModel):
     id = UUIDField(primary_key=True, unique=True)
     name = TextField()
-    url = TextField(null=True)
 
     class Meta:
         table_name = "persons"
 
 class RatingModel(BaseModel):
     id = UUIDField(primary_key=True, unique=True)
-    ratingCount = IntegerField(null=True)
-    bestRating = FloatField(null=True)
-    worstRating = FloatField(null=True)
-    ratingValue = FloatField(null=True)
+    rating = TextField(null=True)
+    votes = IntegerField(null=True)
+    metascore = FloatField(null=True)
+    imdb_ratings = FloatField(null=True)
 
     class Meta:
         table_name = "ratings"
-
-class KeywordModel(BaseModel):
-    value = TextField(primary_key=True, unique=True)
-
-    class Meta:
-        table_name = "keywords"
 
 class GenreModel(BaseModel):
     name = TextField(primary_key=True, unique=True)
@@ -53,14 +44,6 @@ class MovieToActorModel(BaseModel):
 
     class Meta:
         table_name = "movies_to_actor"
-
-class MovieToKeywordModel(BaseModel):
-    id = UUIDField(primary_key=True, unique=True)
-    movie_id = ForeignKeyField(MovieModel, field="id")
-    keyword = ForeignKeyField(KeywordModel, field="value")
-
-    class Meta:
-        table_name = "movies_to_keyword"
 
 class MovieToGenreModel(BaseModel):
     id = UUIDField(primary_key=True, unique=True)
@@ -77,14 +60,6 @@ class MovieToDirectorModel(BaseModel):
 
     class Meta:
         table_name = "movies_to_director"
-
-class MovieToCreatorModel(BaseModel):
-    id = UUIDField(primary_key=True, unique=True)
-    movie_id = ForeignKeyField(MovieModel, field="id")
-    person_id = ForeignKeyField(PersonModel, field="id")
-
-    class Meta:
-        table_name = "movies_to_creator"
 
 class MovieToRatingModel(BaseModel):
     id = UUIDField(primary_key=True, unique=True)

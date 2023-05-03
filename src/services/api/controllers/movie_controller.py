@@ -8,17 +8,12 @@ from infra.cross_cutting.ioc.flask_dependency_injector_boot_strapper import (
 from infra.cross_cutting.exceptions.formatters.exception_formatter import (
     ExceptionFormatter as ExFormatter,
 )
-from services.api.configurations.app_configuration import AppConfiguration
-from services.api.auto_mapper.json_to_view_model_mapping import (
-    GenericJsonToViewModelMapping as ViewModelMapper,
-)
 from services.api.data_transfer_objects.success_response_dto import SuccessResponseDto
 from services.api.data_transfer_objects.error_response_dto import ErrorResponseDto
-from application.view_models.movie_view_model import MovieViewModel
+from services.api.configurations.app_configuration import AppConfiguration
 from flask import Flask, request, jsonify
 from dataclasses import asdict
 import logging
-import uuid
 
 
 app = Flask(__name__)

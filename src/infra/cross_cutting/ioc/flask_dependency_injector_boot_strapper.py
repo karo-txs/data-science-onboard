@@ -1,7 +1,7 @@
 from infra.data.pgsql.repository.movie_repository import MovieRepository
 from application.services.movie_app_service import MovieAppService
-from infra.data.pgsql.db_connection import DbConnection
 from infra.data.pgsql.context.pgsql_context import PgsqlContext
+from infra.data.pgsql.db_connection import DbConnection
 import dependency_injector.containers as containers
 import dependency_injector.providers as providers
 import logging.config
@@ -27,15 +27,13 @@ class FlaskDependencyInjectorBootStrapper(containers.DeclarativeContainer):
             }
     }
 
-    keys = ("postgresql", "mongodb")
-
     # Infra - Data
     db_connection = DbConnection(
-        dbname=database_config[keys[0]].get("database"),
-        host=database_config[keys[0]].get("host"),
-        user=database_config[keys[0]].get("user"),
-        password=database_config[keys[0]].get("password"),
-        port=database_config[keys[0]].get("port"),
+        dbname=database_config["postgresql"].get("database"),
+        host=database_config["postgresql"].get("host"),
+        user=database_config["postgresql"].get("user"),
+        password=database_config["postgresql"].get("password"),
+        port=database_config["postgresql"].get("port"),
     )
     context = providers.Singleton(PgsqlContext, db_connection=db_connection)
 

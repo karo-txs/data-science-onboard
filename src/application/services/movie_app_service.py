@@ -1,37 +1,32 @@
-from application.view_models.movie_view_model import MovieViewModel
-from application.auto_mapper.view_model_to_domain_mapping import (
-    MovieViewModelToDomainMapping as DomainMapper,
-)
 from application.auto_mapper.domain_to_view_model_mapping import (
     MovieDomainToViewModel as ViewModelMapper,
 )
 from domain.interfaces.repository_interface import (
     RepositoryInterface,
 )
-from dataclasses import dataclass, field
-from infra.movie_db.movie_db_controller import MovieDBController
+from application.view_models.movie_view_model import MovieViewModel
 from infra.data.pandasdb.db_to_dataframe import DBToDataframe
+from infra.scrapy.imdb_scrapy import IMDBScrapy
+from dataclasses import dataclass, field
 from infra.plot.plotter import Plotter
 from typing import List
-import logging
 import uuid
-
 
 
 @dataclass(repr=False, eq=False)
 class MovieAppService:
     movie_repository: RepositoryInterface = field(repr=False)
-    movie_controller: MovieDBController = field(default=MovieDBController())
+    movie_scrapy: IMDBScrapy = field(default=IMDBScrapy())
 
     def store_movies(self) -> bool:
-        results = self.movie_controller.search_all()
+        results = self.movie_scrapy.search_all()
 
         response = True
 
-        for movie in results:
+        for idx, movie in enumerate(results):
             if movie:
                 response = self.movie_repository.add(movie)
-                print(f"Movie Registred: {len(results)}")
+                print(f"Movie Registred: {idx}/{(len(results))}")
                 if response == False:
                     break
 
@@ -43,10 +38,6 @@ class MovieAppService:
         df.to_csv("results/test.cvs")
 
         plotter = Plotter(df)
-        plotter.hist("ratingCount")
-        plotter.hist("bestRating")
-        plotter.hist("worstRating")
-        plotter.hist("ratingValue")
 
         return True
 

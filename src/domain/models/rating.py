@@ -3,16 +3,17 @@ from dataclasses import dataclass
 
 @dataclass
 class Rating(Entity):
-    ratingCount: int
-    bestRating: float
-    worstRating: float
-    ratingValue: float
+    rating: str
+    votes: int
+    metascore: float
+    imdb_ratings: float
 
     def to_dict(self) -> dict:
         return {
-            "ratingCount": self.ratingCount,
-            "bestRating": self.bestRating,
-            "worstRating": self.worstRating,
-            "ratingValue": self.ratingValue,
+            "id": self.id,
+            "rating": self.rating,
+            "votes": self.votes,
+            "metascore": self.metascore,
+            "imdb_ratings": self.imdb_ratings,
         }
 

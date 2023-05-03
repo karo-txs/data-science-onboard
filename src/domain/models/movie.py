@@ -9,34 +9,26 @@ from typing import List
 class Movie(Entity):
     type: str
     name: str
-    url: str
     description: str
     rating: Rating
-    contentRating: str
-    datePublished: str
-    duration: str
+    year: int
+    duration: int
     genre: List[Genre] = field(default=None)
-    keywords: List[str] = field(default=None)
     actor: List[Person] = field(default=None)
     director: List[Person] = field(default=None)
-    creator: List[Person] = field(default=None)
 
     def to_dict(self) -> dict:
         
         return {
             "type": self.type,
             "name": self.name,
-            "url": self.url,
             "description": self.description,
-            "ratingCount": self.rating.ratingCount if self.rating.ratingCount else None,
-            "bestRating": self.rating.bestRating if self.rating.bestRating else None,
-            "worstRating": self.rating.worstRating if self.rating.worstRating else None,
-            "ratingValue": self.rating.ratingValue if self.rating.ratingValue else None,
-            "contentRating": self.contentRating,
-            "datePublished": self.datePublished,
+            "rating": self.rating.rating if self.rating.rating else None,
+            "votes": self.rating.votes if self.rating.votes else None,
+            "metascore": self.rating.metascore if self.rating.metascore else None,
+            "imdb_ratings": self.rating.imdb_ratings if self.rating.imdb_ratings else None,
+            "year": self.year,
             "genre": [g.name for g in self.genre],
-            "keywords": self.keywords,
             "actor": [a.name for a in self.actor],
             "director": [d.name for d in self.director],
-            "creator": [c.name for c in self.creator],
         }

@@ -30,12 +30,9 @@ class PgsqlContext:
                   RatingModel, 
                   GenreModel, 
                   PersonModel,
-                  KeywordModel,
                   MovieToActorModel, 
-                  MovieToCreatorModel,
                   MovieToDirectorModel,
                   MovieToGenreModel, 
-                  MovieToKeywordModel,
                   MovieToRatingModel]
         
         for model in models:
@@ -46,10 +43,7 @@ class PgsqlContext:
         self.movies = MovieModel
         self.genres = GenreModel
         self.persons = PersonModel
-        self.keywords = KeywordModel
         self.movie_to_actor = MovieToActorModel
-        self.movie_to_creator = MovieToCreatorModel
         self.movie_to_director = MovieToDirectorModel
         self.movie_to_genre = MovieToGenreModel
-        self.movie_to_keyword = MovieToKeywordModel
         self.movie_to_rating = MovieToRatingModel

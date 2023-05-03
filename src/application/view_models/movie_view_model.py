@@ -10,15 +10,11 @@ import uuid
 class MovieViewModel:
     type: str
     name: str
-    url: str
     description: str
     rating: RatingViewModel
-    contentRating: str
     genre: List[GenreViewModel]
-    datePublished: str
-    keywords: List[str]
-    duration: str
+    year: int
+    duration: int
     actor: List[PersonViewModel]
     director: List[PersonViewModel]
-    creator: List[PersonViewModel]
     id: uuid.UUID = field(default=None)
