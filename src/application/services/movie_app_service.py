@@ -19,18 +19,19 @@ class MovieAppService:
     movie_scrapy: IMDBScrapy = field(default=IMDBScrapy())
 
     def store_movies(self) -> bool:
-        results = self.movie_scrapy.search_all()
 
-        response = True
+        while self.movie_scrapy.have_movies:
+            results = self.movie_scrapy.search_all()
 
-        for idx, movie in enumerate(results):
-            if movie:
-                response = self.movie_repository.add(movie)
-                print(f"Movie Registred: {idx}/{(len(results))}")
-                if response == False:
-                    break
+            for idx, movie in enumerate(results):
+                if movie:
+                    response = self.movie_repository.add(movie)
+                    print(f"Movie Registred: {idx}/{(len(results))}")
 
-        return response
+                    if response == False:
+                        print(f"Error in register")
+
+        return True
 
     def graphs_generate(self) -> bool:
         movies = self.movie_repository.get_all()

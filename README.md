@@ -1,6 +1,5 @@
-====================
-data-science-onboard
-====================
+Data Science Onboard
+
 
 Building a full data-science project end-to-end.
 

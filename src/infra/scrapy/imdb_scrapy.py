@@ -1,4 +1,3 @@
-import time
 from domain.models.person import Person
 from domain.models.rating import Rating
 from domain.models.movie import Movie
@@ -12,7 +11,6 @@ from typing import List
 from time import sleep
 import numpy as np
 import requests
-import schedule
 import uuid
 import re
 
@@ -20,7 +18,7 @@ import re
 @dataclass
 class IMDBScrapy:
 
-    def __post_init__(self):
+    def __post_init__(self, max_page: int = 200):
         genres = [
              "adventure",
              "animation",
@@ -45,24 +43,36 @@ class IMDBScrapy:
         ]
 
         self.urls = []
-        pages = np.arange(1, 1000, 50)
+        pages = np.arange(1, max_page, 50)
         self.headers = {'Accept-Language': 'en-US,en;q=0.8'} 
 
         for genre in genres:
             for page in pages:
                 url = "https://www.imdb.com/search/title?genres={}&start={}&explore=title_type,genres&title_type=movie&ref_=adv_prv"
                 formated_url = url.format(genre, str(page))
-                self.urls.append(formated_url)
+                self.urls.append({
+                    "url":formated_url,
+                    "genre": genre,
+                    "page": page
+                    })
         
         self.count = -1
+        self.movies = []
+        self.have_movies = True
     
-    def get_next_url(self):
+    def get_next_response(self):
         if self.count == len(self.urls):
             self.count = -1
+            self.have_movies = False
         else:
             self.count += 1
+
+        url = self.urls[self.count]
+
+        print(f"""Genre: {url["genre"]}, Page: {url["page"]}""")
+        response = get(url["url"], headers=self.headers)
         
-        return self.urls[self.count]
+        return response
     
 
     def get_movie(self, container) -> Movie:
@@ -90,8 +100,12 @@ class IMDBScrapy:
             m_score = container.find('span', class_ = 'metascore')
             film["metascore"] = m_score.text if m_score else None
 
-            description = container.p.find('span', class_ = 'text-muted')
-            film["description"] = description.text if description else None
+            description = container.find_all('p', class_ = 'text-muted', limit=2)
+            if len(description) >=1:
+                description = description[1].text.replace("\n", "")
+            else:
+                description = None
+            film["description"] = description
 
             persons = container.find("div", class_ = "lister-item-content").find("p", class_ = "")
             directors = persons.text.split("|")[0]
@@ -136,10 +150,8 @@ class IMDBScrapy:
         return None
     
     def search_movies(self) -> List[Movie]:
-        movies = []
-        url = self.get_next_url()
-
-        response = get(url, headers=self.headers)
+        self.movies = []
+        response = self.get_next_response()
         
         if response.status_code != 200:
             warn('Request: {}; Status code: {}'.format(requests, response.status_code))
@@ -152,15 +164,11 @@ class IMDBScrapy:
             for container in movie_containers:
                 movie = self.get_movie(container)
                 if movie:
-                    movies.append(movie)
-
-        return movies
+                    self.movies.append(movie)
         
     
     def search_all(self) -> List[Movie]:
-        schedule.every(1).minutes.do(self.search_movies)
-
-        while True:
-            schedule.run_pending()
-            time.sleep(1)
+        self.search_movies()
+        sleep(randint(2, 50))
+        return self.movies
         

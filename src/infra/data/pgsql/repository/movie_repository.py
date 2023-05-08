@@ -20,7 +20,7 @@ class MovieRepository(RepositoryInterface):
     def add(self, movie: Movie) -> bool:
         
         movie_db = self.get_by_name(movie.name)
-        if movie_db:
+        if movie_db != None:
             movie.id = movie_db.id
             print("Movie already exists.")
             return self.update(movie)
