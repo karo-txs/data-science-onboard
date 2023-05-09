@@ -27,8 +27,9 @@ class Movie(Entity):
             "votes": self.rating.votes if self.rating.votes else None,
             "metascore": self.rating.metascore if self.rating.metascore else None,
             "imdb_ratings": self.rating.imdb_ratings if self.rating.imdb_ratings else None,
+            "duration": self.duration,
             "year": self.year,
-            "genre": [g.name for g in self.genre],
-            "actor": [a.name for a in self.actor],
-            "director": [d.name for d in self.director],
+            "genre": ",".join([g.name for g in self.genre]),
+            "actor": ",".join([a.name for a in self.actor]),
+            "director": ",".join([d.name for d in self.director]),
         }

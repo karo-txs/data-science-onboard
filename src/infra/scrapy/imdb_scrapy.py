@@ -18,7 +18,7 @@ import re
 @dataclass
 class IMDBScrapy:
 
-    def __post_init__(self, max_page: int = 200):
+    def __post_init__(self, max_page: int = 5000):
         genres = [
              "adventure",
              "animation",
@@ -168,7 +168,11 @@ class IMDBScrapy:
         
     
     def search_all(self) -> List[Movie]:
-        self.search_movies()
-        sleep(randint(2, 50))
+        try:
+            self.search_movies()
+            sleep(randint(2, 50))
+        except:
+            print("Excedeed limit")
+            sleep(randint(100, 500))
         return self.movies
         

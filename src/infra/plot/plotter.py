@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-import matplotlib.pyplot as plt
+import plotly.express as px
 import pandas as pd
 
 
@@ -8,16 +8,23 @@ class Plotter:
     df: pd.DataFrame
     save_path: str = field(default="results/graphs")
 
-    def hist(self, attr: str):
-        plt.hist(self.df[attr], bins=10)
-        plt.xlabel(attr)
-        plt.ylabel("count")
-        plt.title(f"Distribution of Movie {attr}")
-        plt.savefig(f"{self.save_path}/hist_{attr}")
+    def line(self, x: str, y: str):
+        fig = px.line(self.df, x=x, y=y)
+        self.save(fig, f"line_{x}_{y}")
     
-    def scatter(self, attr_a: str, attr_b: str):
-        plt.scatter(self.df[attr_a], self.df[attr_b])
-        plt.xlabel(attr_a)
-        plt.ylabel(attr_b)
-        plt.title(f"Relationship between {attr_a} and {attr_b}")
-        plt.savefig(f"{self.save_path}/scatter_{attr_a}_{attr_b}")
+    def area(self, facet_col: str):
+        fig = px.area(self.df, facet_col=facet_col, facet_col_wrap=2)
+        self.save(fig, f"area_{facet_col}")
+
+    def bar(self, x: str, y: str, color: str):
+        fig = px.bar(self.df, x=x, y=y, color=color, barmode="group")
+        self.save(fig, f"bar_{x}_{y}")
+        
+    def scatter(self, x: str, y: str, size:str, color: str, hover_name: str):
+        fig = px.scatter(self.df, x=x, y=y,
+                 size=size, color=color, hover_name=hover_name,
+                 log_x=True, size_max=60)
+        self.save(fig, f"scatter_{x}_{y}")
+    
+    def save(self, fig: any, name: str):
+        fig.write_html(f"{self.save_path}/{name}.html")

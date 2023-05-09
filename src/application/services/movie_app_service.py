@@ -36,9 +36,10 @@ class MovieAppService:
     def graphs_generate(self) -> bool:
         movies = self.movie_repository.get_all()
         df = DBToDataframe.convert(movies)
-        df.to_csv("results/test.cvs")
+        df.to_csv("results/test.csv")
 
         plotter = Plotter(df)
+        plotter.line(x="year", y=df.index)
 
         return True
 

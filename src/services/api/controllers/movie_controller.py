@@ -32,7 +32,7 @@ app_service = container.app_service()
 
 default_error_message = "An unknown error has occurred."
 
-@app.route(f"/register", methods=["GET"])
+@app.route(f"/store", methods=["GET"])
 def store_movies():
     try:
         code = 200
@@ -76,21 +76,6 @@ def get_all():
         response = {"data": []}
         for customer in customers:
             response["data"].append(asdict(customer))
-    except Exception as ex:
-        code = 500
-        response = asdict(ErrorResponseDto(str(ex)))
-        ex_formatted = ExFormatter.format(ex)
-        logging.error(ex_formatted)
-    return jsonify(response), code
-
-@app.route(f"/get_by_id", methods=["GET"])
-def get_by_id():
-    try:
-        code = 200
-        json_data = request.get_json()
-        logging.info(f"Data received: {json_data}")
-        customer = app_service.get_by_id(json_data["id"])
-        response = {"data": asdict(customer)}
     except Exception as ex:
         code = 500
         response = asdict(ErrorResponseDto(str(ex)))
