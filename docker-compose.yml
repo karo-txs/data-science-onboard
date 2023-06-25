@@ -17,14 +17,14 @@ services:
     networks:
       - net
 
-  app :
-    build:
-      context: .
-      dockerfile: Dockerfile
-    depends_on:
-      - postgres
-    networks:
-      - net
+  # app :
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - net
 
 networks:
   net:

@@ -17,5 +17,5 @@ RUN apt-get update -y && \
 COPY ./src /data-science-onboard/src
 RUN cd /data-science-onboard/src && \
     pip install -r requirements.txt && \
-    export FLASK_APP=services/api/controllers/movie_controller.py && \
-    flask --app services/api/controllers/movie_controller.py run
+    export FLASK_APP=src/api/services/api/controllers/movie_controller.py && \
+    flask --app src/api/services/api/controllers/movie_controller.py run
