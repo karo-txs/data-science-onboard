@@ -1,20 +1,18 @@
 from skopt.space import Real, Categorical, Integer
-from src.ml.interfaces import Model
+from ml.interfaces.model import Model
 from sklearn.svm import SVR as SVM
 
 
 class SVMModel(Model):
 
-    def __post_init__(self):
+    def __init__(self):
         self.params = {
-            "C": Real(1e-1, 1e1),
-            "kernel": Categorical(['linear', 'rbf']),
-            "gamma": Categorical(['scale', 'auto']),
+            "C": [0.001, 0.1 ,1,5],
+            "kernel":['linear', 'rbf'],
+            "gamma": ['scale', 'auto'],
             "shrinking": [True, False],
-            "probability": [True, False],
-            "tol": Real(1e-5, 1e-3).
-            "cache_size": [500],
-            "decision_function_shape": Categorical(['ovo', 'ovr'])
+            "tol": [1e-1, 1e-2, 1e-3, 1e-4],
+            "cache_size": [500]
         }
         
         self.model = SVM()

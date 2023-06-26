@@ -4,5 +4,5 @@ from dataclasses import dataclass, field
 class Model:
     model: any = field(default=None)
     params: dict = field(default=None)
-    name: str = field(defaulf="")
+    name: str = field(default="")
     

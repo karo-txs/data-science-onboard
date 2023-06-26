@@ -39,22 +39,31 @@ class MovieAppService:
         return True
 
     def train(self) -> bool:
+
+        print("Loading Data..")
         movies = self.movie_repository.get_all()
+
+        print("Convert to DataFrame..")
         df = DBToDataframe.convert(movies)
+
+        print("Preparing Data..")
 
         prepare_data = PrepareData(df, target="imdb_ratings", info_data={"name": "text", 
                                                                         "votes": "number",
                                                                         "duration": "number",
                                                                         "year": "number",
                                                                         "genre": "multi_label", 
-                                                                        "actor": "multi_label",
-                                                                        "director": "multi_label",})
+                                                                        #"actor": "multi_label",
+                                                                        #"director": "multi_label",
+                                                                        })
 
         self.X_train, self.X_test, self.y_train, self.y_test = prepare_data.apply()
-        train = Train(self.X_train, self.y_train, model_names=["svm", "lr", "et"]).run()
+
+        print("Train models")
+        train = Train(self.X_train, self.y_train, model_names=["svm"]).run()
 
     def test(self) -> dict:
-        test = Test(self.X_test, self.y_test, model_names=["svm", "lr", "et"]).run()
+        test = Test(self.X_test, self.y_test, model_names=["svm"]).run()
     
     def inference(self) -> dict:
         pass

@@ -9,5 +9,5 @@ class SplitDataset:
     test_size: float = field(default=0.2)
     
     def apply(self):
-        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=self.test_size, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=self.test_size, random_state=42, shuffle=True)
         return X_train, X_test, y_train, y_test

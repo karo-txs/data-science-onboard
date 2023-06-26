@@ -6,10 +6,16 @@ sqlalchemy
 psycopg2-binary
 beautifulsoup4
 black==21.7b0
+numpy==1.21.6
 schedule
 plotly
 pandas
+nltk
 
 # Flask API
 peewee
 flask>=2.2.2
+
+# ML
+scikit-learn
+scikit-optimize

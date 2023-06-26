@@ -13,6 +13,6 @@ class Encoder:
     def apply(self):
         if self.is_train:
             self.label_encoder = preprocessing.LabelEncoder()
-            self.label_encoder.fit(self.train)
+            self.label_encoder.fit(self.data)
         
         return self.label_encoder.transform(self.data)

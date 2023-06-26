@@ -3,7 +3,8 @@ from dataclasses import dataclass, field
 from ml.models.svm_model import SVMModel
 from ml.models.lr_model import LRModel
 from ml.models.et_model import ETModel
-from src.ml.interfaces import Model
+from ml.interfaces.model import Model
+from typing import List
 import pandas as pd
 import numpy as np
 import warnings
@@ -16,62 +17,51 @@ class Test:
     x_test: any
     y_test: any
     model_names: List[str]
-    models: List[Model] = field(defaulf=[])
-    results_path: str = field(default = "../../../results/")
+    models: List[Model] = field(default_factory=lambda: [])
+    results_path: str = field(default = "./results")
 
-    def run(self, iterations: int = 1, folds: int = 6, n_splits: int = 6, n_iter: int = 150):
+    def run(self, iterations: int = 1):
         self.set_models()
         cv_mean = get_structure_results()
 
         for i in range(0, iterations):
-            for j in range(0, folds):
-                print("\nInteration "+str(i+1), "Fold "+str(j+1))
-                for model in self.models:
+            print("\nInteration "+str(i+1))
+            for model in self.models:
 
-                    print(f"\nTest of the {model.name} algorithm")
-                    filename = f"{self.results_path}/hyperparametrization/models/data_{str(i+1)}/{clf.__class__.__name__}{str(j+1)}.joblib.pkl"
-                    clf = joblib.load(filename)
+                print(f"\nTest of the {model.name} algorithm")
+                filename = f"{self.results_path}/hyperparametrization/models/data_{str(i+1)}/{clf.__class__.__name__}.joblib.pkl"
+                clf = joblib.load(filename)
 
-                    y_pred = clf.predict(self.x_test)
+                y_pred = clf.predict(self.x_test)
 
-                    r2, mae, rmse = self.get_results(y_pred, y_test)
+                r2, mae, rmse = self.get_results(y_pred, y_test)
 
-                    score = {'Algoritmo': model.name, 'interaction': str(i+1), 'R2': r2, 'MAE': mae, 'RMSE': rmse}
-                    path = f"{self.results_path}/evaluation/data_{str(index + 1)}/score.csv"
-                    self.save_csv(path, score)
+                score = {'Algoritmo': model.name, 'interaction': str(i+1), 'R2': r2, 'MAE': mae, 'RMSE': rmse}
+                path = f"{self.results_path}/evaluation/data_{str(i + 1)}"
+                self.save_csv(path, score)
 
-                    cv_mean[model.name]['R2'] += r2
-                    cv_mean[model.name]['MAE'] += mae
-                    cv_mean[model.name]['RMSE'] += rmse
-                
+                cv_mean[model.name]['R2'] += r2
+                cv_mean[model.name]['MAE'] += mae
+                cv_mean[model.name]['RMSE'] += rmse
             
-            cv_mean = self.mean_calculate(folds, cv_mean)
-            for clf in cv_mean:
-                r2 = cv_mean[clf]['R2']
-                mae = cv_mean[clf]['MAE']
-                rmse = cv_mean[clf]['RMSE']
+        
+        # cv_mean = self.mean_calculate(folds, cv_mean)
+        # for clf in cv_mean:
+        #     r2 = cv_mean[clf]['R2']
+        #     mae = cv_mean[clf]['MAE']
+        #     rmse = cv_mean[clf]['RMSE']
 
-                final_mean[clf]['R2'] += r2
-                final_mean[clf]['MAE'] += mae
-                final_mean[clf]['RMSE'] += rmse
+        #     final_mean[clf]['R2'] += r2
+        #     final_mean[clf]['MAE'] += mae
+        #     final_mean[clf]['RMSE'] += rmse
 
-                helper_cv_mean = {'Algoritmo': clf, 'R2': r2, 'MAE': mae, 'RMSE': rmse}
-                helper_general_cv_mean = {'Algoritmo': clf, 'Interaction': index+1, 'R2': r2, 'MAE': mae, 'RMSE': rmse}
+        #     helper_cv_mean = {'Algoritmo': clf, 'R2': r2, 'MAE': mae, 'RMSE': rmse}
+        #     helper_general_cv_mean = {'Algoritmo': clf, 'Interaction': index+1, 'R2': r2, 'MAE': mae, 'RMSE': rmse}
 
-                path = f"{self.results_path}/evaluation/data_{str(index + 1)}/cv_mean.csv"
-                self.save_csv(path, helper_cv_mean)
-                path = f"{self.results_path}/evaluation/general_cv_mean.csv"
-                self.save_csv(path, helper_general_cv_mean)
-
-        final_mean = self.mean_calculate(iterations, final_mean)
-        path = f"{self.results_path}/evaluation/final_mean.csv"
-        for clf in final_mean:
-            r2 = final_mean[clf]['R2']
-            mae = final_mean[clf]['MAE']
-            rmse = final_mean[clf]['RMSE']
-
-            helper_final_mean = {'Algoritmo': clf, 'R2': r2, 'MAE': mae, 'RMSE': rmse}
-            self.save_csv(path, helper_final_mean)
+        #     path = f"{self.results_path}/evaluation/data_{str(index + 1)}/cv_mean.csv"
+        #     self.save_csv(path, helper_cv_mean)
+        #     path = f"{self.results_path}/evaluation/general_cv_mean.csv"
+        #     self.save_csv(path, helper_general_cv_mean)
 
     def set_models(self):
         for model_name in self.model_names:
@@ -83,16 +73,20 @@ class Test:
                 self.models.append(ETModel())
     
     def save_csv(path, dictionary):
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        path = f"{path}/score.csv"
+
         try:
             open(path, 'r')
             with open(path, 'a') as arq:
                 writer = csv.writer(arq)
                 writer.writerow(dictionary.values())
         except IOError:
-            dataF = pd.DataFrame(columns=dictionary.keys())
-            dataF = dataF.append(dictionary, ignore_index=True)
+            dataF = pd.DataFrame.from_dict(dictionary)
             dataF.to_csv(path, index=False)
-
 
     def mean_calculate(self, div, dictionary):
         for algorithm in dictionary:
@@ -111,12 +105,3 @@ class Test:
         mae = mean_absolute_error(y_test,y_pred)
         rmse = np.sqrt(mean_squared_error(y_test, y_pred))
         return r2, mae, rmse
-
-
-    def remove(self, dictionary, key_remove):
-        new_dict = {}
-        for key, value in dictionary.items():
-            if key is not key_remove:
-                new_dict[key] = value
-
-        return new_dict

@@ -8,12 +8,12 @@ class TimeTool():
     initDataTime = 'Date Hour year'
     
     def init(self):
-        self.iniTime = self.time.time()
-        self.initDataTime = self.time.ctime()
+        self.iniTime = time.time()
+        self.initDataTime = time.ctime()
 
     def end(self):
-        self.finalTime = self.time.time()
-        self.endDataTime = self.time.ctime()
+        self.finalTime = time.time()
+        self.endDataTime = time.ctime()
         hour = 0 
         minute = 0 
         second = 0

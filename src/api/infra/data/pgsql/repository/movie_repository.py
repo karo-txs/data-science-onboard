@@ -71,11 +71,14 @@ class MovieRepository(RepositoryInterface):
             return None
 
     def get_all(self) -> List[Movie]:
-        movie_models: List[MovieModel] = self.__db_set.select()
+        movie_models: List[MovieModel] = self.__db_set.select()[:4000]
 
         movies = []
+        i = 0
         for movie in movie_models:
             movies.append(self.get_by_id(movie.id))
+            i += 1
+            print(f"{i}/{len(movie_models)}")
 
         return movies
 

@@ -1,10 +1,10 @@
 from sklearn.ensemble import ExtraTreesRegressor as ET
 from skopt.space import Real, Categorical, Integer
-from src.ml.interfaces import Model
+from ml.interfaces.model import Model
 
 
 class ETModel(Model):
-    def __post_init__(self):
+    def __init__(self):
         self.params = {
             "n_estimators": Integer(150, 1100),
             "criterion": Categorical(['gini', 'entropy']),
